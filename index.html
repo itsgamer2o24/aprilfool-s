@@ -7,15 +7,15 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
   <style>
     :root {
-      --bg-color-1: #010102;
-      --bg-color-2: #05020a; 
-      --term-bg: rgba(5, 5, 10, 0.65); 
-      --text-color: #e0e0e0; 
+      --bg-color-1: #000000;
+      --bg-color-2: #05030d; 
+      --term-bg: rgba(10, 10, 15, 0.55); 
+      --text-color: #eef8ff; 
       --neon-cyan: #00f3ff;
       --neon-pink: #ff007f;
       --neon-green: #00ff66;
@@ -28,210 +28,250 @@
       font-family: 'JetBrains Mono', monospace;
       margin: 0; display: flex; justify-content: center; align-items: center;
       height: 100dvh; overflow: hidden; 
-      perspective: 1000px;
+      perspective: 1500px;
       background-color: black;
       letter-spacing: 0.5px;
+      animation: ambientPulse 10s ease-in-out infinite alternate;
     }
 
-    ::selection { background: var(--neon-cyan); color: #000; }
+    @keyframes ambientPulse {
+        0% { box-shadow: inset 0 0 100px rgba(0, 243, 255, 0.02); }
+        100% { box-shadow: inset 0 0 150px rgba(0, 243, 255, 0.05); }
+    }
+
+    ::selection { background: var(--neon-cyan); color: #000; text-shadow: none; }
 
     /* ULTIMATE CINEMATIC CRT EFFECTS */
     .vignette {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.95) 100%);
+        background: radial-gradient(circle, rgba(0,0,0,0) 20%, rgba(0,0,0,0.98) 100%);
         z-index: 5; pointer-events: none;
     }
     
     .crt-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
-                    linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
-        background-size: 100% 3px, 3px 100%;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+        background-size: 100% 4px, 3px 100%;
         z-index: 998; pointer-events: none; opacity: 0.8;
-        animation: flicker 0.15s infinite;
+        animation: flicker 0.15s infinite, roll 10s linear infinite;
     }
-    @keyframes flicker { 0% { opacity: 0.75; } 50% { opacity: 0.85; } 100% { opacity: 0.75; } }
+    @keyframes flicker { 0% { opacity: 0.7; } 50% { opacity: 0.85; } 100% { opacity: 0.7; } }
+    @keyframes roll { 0% { background-position: 0 0, 0 0; } 100% { background-position: 0 400px, 0 0; } }
 
     #matrix-canvas {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        z-index: 0; pointer-events: none; opacity: 0.3;
+        z-index: 0; pointer-events: none; opacity: 0.4; filter: blur(1px);
     }
 
     .cyber-grid {
         position: fixed; bottom: -20vh; left: -50vw; width: 200vw; height: 60vh;
-        background: linear-gradient(rgba(0, 243, 255, 0.2) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 243, 255, 0.2) 1px, transparent 1px);
-        background-size: 45px 45px; transform: rotateX(75deg);
-        animation: gridMove 8s linear infinite; z-index: 1; pointer-events: none;
+        background: linear-gradient(rgba(0, 243, 255, 0.15) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 243, 255, 0.15) 1px, transparent 1px);
+        background-size: 50px 50px; transform: rotateX(75deg);
+        animation: gridMove 10s linear infinite; z-index: 1; pointer-events: none;
+        mask-image: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
     }
     body.prank-active .cyber-grid {
-        background: linear-gradient(rgba(255, 0, 60, 0.35) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 0, 60, 0.35) 1px, transparent 1px);
+        background: linear-gradient(rgba(255, 0, 60, 0.3) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 0, 60, 0.3) 1px, transparent 1px);
         animation: gridMove 1.5s linear infinite;
     }
-    @keyframes gridMove { 0% { transform: rotateX(75deg) translateY(0); } 100% { transform: rotateX(75deg) translateY(45px); } }
+    @keyframes gridMove { 0% { transform: rotateX(75deg) translateY(0); } 100% { transform: rotateX(75deg) translateY(50px); } }
 
-    /* Enhanced Terminal UI */
+    /* HIGH-END GLASSMORPHISM TERMINAL UI */
     .terminal-container { 
         position: relative; z-index: 10; 
-        animation: entrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards, float 5s ease-in-out infinite, pulseGlow 3s ease-in-out infinite alternate; 
+        animation: entrance 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, float 6s ease-in-out infinite, pulseGlow 4s ease-in-out infinite alternate; 
     }
     
     @keyframes float {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
+        50% { transform: translateY(-12px); }
     }
     @keyframes pulseGlow {
-        0% { filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.2)); }
-        100% { filter: drop-shadow(0 0 40px rgba(0, 243, 255, 0.5)); }
+        0% { filter: drop-shadow(0 20px 40px rgba(0, 243, 255, 0.1)); }
+        100% { filter: drop-shadow(0 30px 60px rgba(0, 243, 255, 0.3)); }
     }
 
-    /* MUSIC DRIFT ANIMATION FOR THE TERMINAL */
     .terminal-container.music-mode {
         animation: musicDrift 15s ease-in-out infinite alternate !important;
     }
     @keyframes musicDrift {
         0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-        25% { transform: translate(-12px, -10px) scale(1.03) rotate(-1deg); }
-        50% { transform: translate(15px, 15px) scale(0.97) rotate(1deg); }
-        75% { transform: translate(-10px, 18px) scale(1.02) rotate(-0.5deg); }
-        100% { transform: translate(18px, -15px) scale(1) rotate(0.5deg); }
+        25% { transform: translate(-15px, -10px) scale(1.02) rotate(-0.8deg); }
+        50% { transform: translate(15px, 15px) scale(0.98) rotate(0.8deg); }
+        75% { transform: translate(-10px, 18px) scale(1.01) rotate(-0.4deg); }
+        100% { transform: translate(18px, -15px) scale(1) rotate(0.4deg); }
     }
 
     .terminal-wrapper {
-      width: 92vw; max-width: 780px; height: 82dvh;
-      background: var(--term-bg); border-radius: 16px;
-      border: 1px solid rgba(0, 243, 255, 0.8);
-      box-shadow: 0 40px 100px rgba(0,0,0,0.95), inset 0 0 60px rgba(0, 243, 255, 0.2);
+      width: 92vw; max-width: 820px; height: 82dvh;
+      background: linear-gradient(135deg, rgba(15, 15, 20, 0.8), rgba(5, 5, 8, 0.95));
+      border-radius: 18px;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      box-shadow: 0 50px 100px rgba(0,0,0,1), 
+                  inset 0 0 80px rgba(0, 243, 255, 0.1), 
+                  inset 0 1px 0 rgba(255,255,255,0.1);
       display: flex; flex-direction: column;
-      backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
-      transition: all 0.4s ease; position: relative; overflow: hidden;
-    }
-
-    .terminal-wrapper::before {
-        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        box-shadow: inset 0 0 4px 1px rgba(255,255,255,0.2); border-radius: 16px; pointer-events: none; z-index: 20;
+      backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
     }
 
     .terminal-wrapper::after {
-        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 10px;
-        background: var(--neon-cyan); box-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan);
-        animation: scanlineSweep 3s linear infinite; opacity: 0.5; pointer-events: none; z-index: 21;
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 15px;
+        background: linear-gradient(to bottom, var(--neon-cyan), transparent); 
+        box-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan);
+        animation: scanlineSweep 4s linear infinite; opacity: 0.3; pointer-events: none; z-index: 21;
     }
-    @keyframes scanlineSweep { 0% { top: -10%; } 100% { top: 110%; } }
+    @keyframes scanlineSweep { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.3; } 90% { opacity: 0.3; } 100% { top: 110%; opacity: 0; } }
 
-    /* Violent Transition to red state for prank */
+    /* PRANK MODE (Violent Red Transition) */
     body.prank-active .terminal-wrapper {
         border: 2px solid var(--alert-red);
-        background: rgba(30, 0, 0, 0.95);
-        box-shadow: 0 40px 100px rgba(0,0,0,0.95), inset 0 0 150px rgba(255, 0, 60, 0.7);
-        animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) infinite;
+        background: linear-gradient(135deg, rgba(40, 0, 0, 0.9), rgba(15, 0, 0, 0.98));
+        box-shadow: 0 50px 120px rgba(0,0,0,1), inset 0 0 150px rgba(255, 0, 60, 0.5);
+        animation: shake 0.25s cubic-bezier(.36,.07,.19,.97) infinite;
     }
-    body.prank-active .terminal-container { animation: none; filter: drop-shadow(0 0 60px rgba(255, 0, 60, 0.8)); }
-    body.prank-active .terminal-wrapper::after { background: var(--alert-red); box-shadow: 0 0 60px var(--alert-red); animation: scanlineSweep 0.6s linear infinite; }
+    body.prank-active .terminal-container { animation: none; filter: drop-shadow(0 0 80px rgba(255, 0, 60, 0.6)); }
+    body.prank-active .terminal-wrapper::after { background: linear-gradient(to bottom, var(--alert-red), transparent); box-shadow: 0 0 80px var(--alert-red); animation: scanlineSweep 0.5s linear infinite; opacity: 0.6;}
 
     @keyframes shake {
       0% { transform: translate(3px, 3px) rotate(0deg); }
-      20% { transform: translate(-5px, -4px) rotate(-2deg); }
-      40% { transform: translate(-4px, 5px) rotate(2deg); }
+      20% { transform: translate(-5px, -4px) rotate(-1.5deg); }
+      40% { transform: translate(-4px, 5px) rotate(1.5deg); }
       60% { transform: translate(5px, -4px) rotate(0deg); }
-      80% { transform: translate(-4px, -5px) rotate(-2deg); }
+      80% { transform: translate(-4px, -5px) rotate(-1.5deg); }
       100% { transform: translate(3px, 3px) rotate(0deg); }
     }
 
+    /* CINEMATIC ENTRANCE */
     @keyframes entrance { 
-        0% { transform: scale(0.8) translateY(50px); opacity: 0; filter: contrast(2) brightness(2); } 
-        100% { transform: scale(1) translateY(0); opacity: 1; filter: contrast(1) brightness(1); } 
+        0% { transform: scale(0.6) translateY(80px); opacity: 0; filter: blur(20px) brightness(2); } 
+        60% { transform: scale(1.02) translateY(-10px); opacity: 1; filter: blur(0px) brightness(1.2); }
+        100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); } 
     }
 
+    /* HEADER UPGRADES */
     .window-header {
-      background: rgba(0,0,0,0.9); padding: 16px 25px; border-radius: 16px 16px 0 0; 
-      display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15);
-      position: relative; z-index: 22;
+      background: rgba(0,0,0,0.6); padding: 18px 25px; border-radius: 16px 16px 0 0; 
+      display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: relative; z-index: 22; backdrop-filter: blur(10px);
     }
     
-    .window-btn { width: 14px; height: 14px; border-radius: 50%; margin-right: 9px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 0 10px rgba(0,0,0,0.8);}
+    .window-btn { 
+        width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; 
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.8);
+        transition: transform 0.2s ease;
+    }
+    .window-btn:hover { transform: scale(1.2); }
     
     .live-indicator {
-        width: 10px; height: 10px; background: var(--alert-red); border-radius: 50%; margin-right: 10px;
-        box-shadow: 0 0 10px var(--alert-red); animation: blink 1s infinite;
+        width: 10px; height: 10px; background: var(--alert-red); border-radius: 50%; margin-right: 12px;
+        box-shadow: 0 0 15px var(--alert-red), 0 0 5px #fff; animation: blink-smooth 1.5s ease-in-out infinite;
     }
+    @keyframes blink-smooth { 0%, 100% { opacity: 1; filter: brightness(1.5); } 50% { opacity: 0.3; filter: brightness(0.8); } }
 
+    /* TEXT & GLOW UPGRADES */
     .terminal-body { 
-        padding: 40px; flex-grow: 1; overflow-y: auto; font-size: 18px; 
-        line-height: 1.8; text-shadow: 0 0 8px rgba(0, 243, 255, 0.5); letter-spacing: 0.5px;
+        padding: 45px; flex-grow: 1; overflow-y: auto; font-size: 18px; 
+        line-height: 1.9; text-shadow: 0 2px 4px rgba(0, 0, 0, 1); letter-spacing: 0.5px;
         position: relative; z-index: 22;
     }
     .terminal-body::-webkit-scrollbar { display: none; }
     
-    /* ENHANCED TEXT GLOW CLASSES */
-    .glow-sys { color: var(--neon-cyan); font-weight: 700; text-shadow: 0 0 15px var(--neon-cyan); }
-    .glow-warn { color: var(--alert-red); font-weight: 700; text-shadow: 0 0 20px var(--alert-red); }
-    .red-text { color: var(--alert-red); font-weight: 700; text-shadow: 0 0 15px var(--alert-red); }
+    .glow-sys { 
+        color: var(--neon-cyan); font-weight: 700; 
+        text-shadow: 0 0 5px rgba(0, 243, 255, 0.8), 0 0 15px rgba(0, 243, 255, 0.5), 0 0 30px rgba(0, 243, 255, 0.3); 
+    }
+    .glow-warn { 
+        color: var(--alert-red); font-weight: 900; 
+        text-shadow: 0 0 5px rgba(255, 0, 60, 0.8), 0 0 20px rgba(255, 0, 60, 0.5), 0 0 40px rgba(255, 0, 60, 0.4); 
+    }
     
-    /* LYRIC POP IN ANIMATION */
+    /* CURSIVE CONFESSION (Massive Glow) */
+    .ultimate-confession {
+        font-family: 'Dancing Script', cursive;
+        font-size: 50px;
+        color: #fff0f5;
+        text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f, 0 0 40px #ff007f, 0 0 80px #ff003c;
+        animation: pulse-confess 2s ease-in-out infinite alternate;
+        display: inline-block;
+        line-height: 1.3;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        transform-origin: center;
+    }
+    @keyframes pulse-confess {
+        0% { transform: scale(1); filter: brightness(1); }
+        100% { transform: scale(1.05); filter: brightness(1.3); text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f, 0 0 80px #ff003c, 0 0 120px #ff003c; }
+    }
+
+    .heart-glow { color: #ff0055; animation: heartbeat 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite; display: inline-block; font-family: sans-serif;}
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 20% { transform: scale(1.4); } 40% { transform: scale(1.1); } 60% { transform: scale(1.4); } }
+    
+    /* CINEMATIC LYRIC POP */
     .lyric-pop {
-        text-align: center; font-size: 28px; font-weight: 900;
-        color: #fff;
-        text-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan);
-        animation: popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0; transform: scale(0.8);
+        text-align: center; font-size: 30px; font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+        animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        opacity: 0; transform: scale(0.5);
         letter-spacing: 1px;
     }
     @keyframes popIn {
-        0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(5px); }
+        0% { opacity: 0; transform: scale(0.5) translateY(40px); filter: blur(10px); }
+        70% { opacity: 1; transform: scale(1.05) translateY(-5px); filter: blur(0px); }
         100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
     }
 
-    /* THE ULTIMATE MEGA GLITCH TEXT EFFECT FOR PRANK */
+    /* MEGA GLITCH TEXT */
     .glitch-text {
-        font-family: 'Share Tech Mono', monospace; font-size: 34px; font-weight: 900;
+        font-family: 'Share Tech Mono', monospace; font-size: 38px; font-weight: 900;
         color: #ffffff; 
         text-shadow: 
-            0 0 20px var(--alert-red),
-            0 0 40px var(--alert-red),
-            5px 0 var(--neon-cyan), 
-            -5px 0 var(--neon-pink);
-        animation: mega-glitch-anim 0.08s infinite, pulse-red 1s infinite alternate; 
-        display: inline-block; margin-top: 15px; letter-spacing: 2px;
+            0 0 20px var(--alert-red), 0 0 50px var(--alert-red),
+            6px 0 var(--neon-cyan), -6px 0 var(--neon-pink);
+        animation: mega-glitch-anim 0.08s infinite, pulse-red-glitch 1s infinite alternate; 
+        display: inline-block; margin-top: 20px; letter-spacing: 3px;
     }
     @keyframes mega-glitch-anim {
-        0% { transform: translate(0) scale(1) skew(0deg); }
-        20% { transform: translate(-6px, 6px) scale(1.05) skew(2deg); }
-        40% { transform: translate(-6px, -6px) scale(1) skew(-2deg); }
-        60% { transform: translate(6px, 6px) scale(1.02) skew(1deg); }
-        80% { transform: translate(6px, -6px) scale(1) skew(-1deg); }
-        100% { transform: translate(0) scale(1) skew(0deg); }
+        0% { transform: translate(0) scale(1) skew(0deg); clip-path: inset(0 0 0 0); }
+        20% { transform: translate(-8px, 8px) scale(1.05) skew(3deg); clip-path: inset(20% 0 80% 0); }
+        40% { transform: translate(-8px, -8px) scale(1) skew(-3deg); clip-path: inset(80% 0 10% 0); }
+        60% { transform: translate(8px, 8px) scale(1.02) skew(2deg); clip-path: inset(40% 0 40% 0); }
+        80% { transform: translate(8px, -8px) scale(1) skew(-2deg); clip-path: inset(10% 0 60% 0); }
+        100% { transform: translate(0) scale(1) skew(0deg); clip-path: inset(0 0 0 0); }
     }
-    @keyframes pulse-red {
-        0% { filter: drop-shadow(0 0 15px var(--alert-red)); }
-        100% { filter: drop-shadow(0 0 40px var(--alert-red)); }
-    }
+    @keyframes pulse-red-glitch { 0% { filter: brightness(1); } 100% { filter: brightness(1.5) drop-shadow(0 0 50px var(--alert-red)); } }
 
     #cursor {
-        display: inline-block; width: 14px; height: 1.3rem; background: var(--neon-cyan); 
-        animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 6px;
-        box-shadow: 0 0 15px var(--neon-cyan); border-radius: 2px;
+        display: inline-block; width: 16px; height: 1.4rem; background: #fff; 
+        animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 8px;
+        box-shadow: 0 0 10px #fff, 0 0 20px var(--neon-cyan); border-radius: 3px;
     }
-    body.prank-active #cursor { background: var(--alert-red); box-shadow: 0 0 30px var(--alert-red); animation: blink 0.1s step-end infinite;}
+    body.prank-active #cursor { background: #fff; box-shadow: 0 0 10px #fff, 0 0 30px var(--alert-red); animation: blink 0.08s step-end infinite;}
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    .input-row { display: flex; align-items: center; margin-top: 30px; display: none; }
-    .input-arrow { color: var(--neon-cyan); font-weight: bold; margin-right: 15px; font-size: 22px; text-shadow: 0 0 15px var(--neon-cyan);}
+    /* INPUT FIELD UPGRADES */
+    .input-row { display: flex; align-items: center; margin-top: 35px; display: none; }
+    .input-arrow { color: var(--neon-cyan); font-weight: 900; margin-right: 15px; font-size: 24px; text-shadow: 0 0 15px var(--neon-cyan);}
     body.prank-active .input-arrow { color: var(--alert-red); text-shadow: 0 0 20px var(--alert-red);}
     
     input { 
-        background: rgba(0,0,0,0.7); border: 2px solid rgba(0, 243, 255, 0.6); border-radius: 8px;
-        color: var(--neon-cyan); padding: 16px 24px;
-        font-family: 'JetBrains Mono', monospace; font-size: 18px; outline: none; 
-        flex-grow: 1; font-weight: 700; transition: all 0.3s ease;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-        letter-spacing: 1px; text-shadow: 0 0 8px var(--neon-cyan);
+        background: rgba(0,0,0,0.4); border: 2px solid rgba(0, 243, 255, 0.3); border-radius: 10px;
+        color: #fff; padding: 18px 25px;
+        font-family: 'JetBrains Mono', monospace; font-size: 20px; outline: none; 
+        flex-grow: 1; font-weight: 700; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
     input:focus { 
         border-color: var(--neon-cyan); 
-        background: rgba(0, 243, 255, 0.1);
-        box-shadow: 0 0 30px rgba(0, 243, 255, 0.5), inset 0 0 20px rgba(0,0,0,0.9); 
+        background: rgba(0, 243, 255, 0.15);
+        box-shadow: 0 0 40px rgba(0, 243, 255, 0.6), inset 0 0 20px rgba(0,0,0,0.9); 
+        transform: scale(1.01);
     }
     
   </style>
@@ -249,21 +289,21 @@
   <div class="terminal-container" id="terminal-ui">
       <div class="terminal-wrapper" id="term-wrap">
         <div class="window-header">
-          <div style="display: flex; gap: 9px; flex-grow: 1;">
+          <div style="display: flex; gap: 10px; flex-grow: 1;">
               <div class="window-btn" style="background:#ff5f56;"></div>
               <div class="window-btn" style="background:#ffbd2e;"></div>
               <div class="window-btn" style="background:#27c93f;"></div>
           </div>
           <div style="display: flex; align-items: center;">
               <div class="live-indicator"></div>
-              <div style="font-size:13px; font-weight:bold; letter-spacing:3px; color:var(--neon-cyan); opacity:0.9; text-shadow: 0 0 8px var(--neon-cyan);">SECURE_CONNECTION_ESTABLISHED</div>
+              <div style="font-size:14px; font-weight:900; letter-spacing:4px; color:var(--neon-cyan); opacity:0.95; text-shadow: 0 0 10px var(--neon-cyan);">SECURE_CONNECTION</div>
           </div>
         </div>
         <div class="terminal-body" id="term-body">
           <span id="console-history"></span><span id="active-line"><span id="typing-text"></span><span id="cursor"></span></span>
           <div class="input-row" id="input-container">
             <span class="input-arrow">~ $</span>
-            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="Awaiting input...">
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="Awaiting command...">
           </div>
         </div>
       </div>
@@ -280,56 +320,34 @@
     const terminalUI = document.getElementById('terminal-ui');
 
     let step = 0; 
-    let typingSpeed = 35; 
+    let typingSpeed = 30; 
     let isTyping = false; 
     let typeTimeout; 
     let targetCrush = ""; 
 
-    // --- AUDIO FADE HELPER FUNCTIONS ---
-    function fadeOutAudio(audio, duration) {
-        if (!audio || audio.paused) return;
-        let stepAmt = 0.05;
-        let intervalTime = duration / (audio.volume / stepAmt);
-        let fadeInterval = setInterval(() => {
-            if (audio.volume > stepAmt) {
-                audio.volume -= stepAmt;
-            } else {
-                audio.volume = 0;
-                audio.pause();
-                clearInterval(fadeInterval);
-            }
-        }, intervalTime);
-    }
-
-    function fadeInAudio(audio, duration, targetVol = 1) {
-        if (!audio) return;
-        audio.volume = 0;
-        audio.play().catch(e=>{});
-        let stepAmt = 0.05;
-        let intervalTime = duration / (targetVol / stepAmt);
-        let fadeInterval = setInterval(() => {
-            if (audio.volume < targetVol - stepAmt) {
-                audio.volume += stepAmt;
-            } else {
-                audio.volume = targetVol;
-                clearInterval(fadeInterval);
-            }
-        }, intervalTime);
-    }
-
-    // --- 1: THE TERMINAL PRANK SEQUENCE ("JOKE LANG") ---
-    const encodedLines = [
-      "PHNwYW4gY2xhc3M9J2dsb3ctc3lzJz5bU3lzdGVtXTwvc3Bhbj4gU2Nhbm5pbmcgaW50ZXJuYWwgbWVtb3J5IGJhbmtzLi4u", 
-      "PHNwYW4gY2xhc3M9J2dsb3ctd2Fybic+W1dBUk5JTkddPC9zcGFuPiBVbmF1dGhvcml6ZWQgZmVlbGluZ3MgZGV0ZWN0ZWQgaW4gc2VjdG9yIDQu", 
-      "PHNwYW4gY2xhc3M9J2dsb3ctc3lzJz5bU3lzdGVtXTwvc3Bhbj4gTWVzc2FnZSBzYSBpbW8gbmkge1ZBTH0=", 
-      "QWN0dWFsbHksIG1hdGFnYWwga28gbmEgZ3VzdG9uZyBhbWluaW4gJ3RvIHNhJ3lvLiBJIGp1c3QgZGlkbid0IGtub3cgaG93Lg==", 
-      "RXZlcnkgdGltZSB3ZSB0YWxrLCBJIHNtaWxlLiBJYmFuZy1pYmEga2Ega2FzaSBzYSBsYWhhdC4gWW91IG1ha2UgbWUgcmVhbGx5IGhhcHB5Lg==", 
-      "U28sIGJlZm9yZSBJIGxvc2UgbXkgbmVydmUuLi4gSSB3YW50IHlvdSB0byBrbm93Lg==", 
-      "R3VzdG8ga2l0YS4gSSByZWFsbHksIHJlYWxseSBsaWtlIHlvdS4gPHNwYW4gY2xhc3M9J2hlYXJ0LWdsb3cnPiZoZWFydHM7PC9zcGFuPg==", 
-      "PHNwYW4gY2xhc3M9J2dsaXRjaC10ZXh0Jz4vLyBDUklUSUNBTCBFUlJPUjogSm9rZSBsYW5nIEhBSEhBSEhBSCEhISBVVE8tVVRPISAvLzwvc3Bhbj4="
+    // --- FETCH RANDOM STORYLINES FROM GITHUB JSON ---
+    const githubRawUrl = "https://raw.githubusercontent.com/itsgamer2o24/aprilfool-s/refs/heads/main/storylines.json"; 
+    
+    let possibleStorylines = [
+        [
+          "Scanning internal memory banks...", 
+          "Unauthorized feelings detected in sector 4.", 
+          "Actually, matagal ko na gustong aminin 'to sa'yo.", 
+          "Every time we talk, I smile. Ibang-iba ka kasi sa lahat.", 
+          "So, before I lose my nerve...", 
+          "Gusto kita. I really, really like you. <span class='heart-glow'>&hearts;</span>"
+        ]
     ];
 
-    // --- 2: AUDIO LYRICS SEQUENCE ---
+    fetch(githubRawUrl)
+        .then(res => res.json())
+        .then(data => {
+            if(data && data.length > 0) {
+                possibleStorylines = data;
+            }
+        })
+        .catch(err => console.log("Using local fallback lines."));
+
     const musicMessages = [
         { text: atob("T2theSBsYW5nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bWFpd2FuPC9zcGFuPi4="), time: 0.5 }, 
         { text: atob("T2theSBsYW5nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bWFzYWt0YW48L3NwYW4+Lg=="), time: 3.0 }, 
@@ -339,16 +357,16 @@
         { text: atob("SWYgeW91IGRvbid0IHdhbnQgdG8gYmUgPHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5icm9rZW48L3NwYW4+LCBkb24ndCBsb3ZlIGF0IGFsbC4="), time: 17.5 } 
     ];
 
-    // DISCORD WEBHOOK
-    function sendToDiscord(messageText) {
+    // DISCORD WEBHOOK FUNCTION
+    function sendToDiscord(crushName, messageText) {
         const webhookUrl = "https://discord.com/api/webhooks/1488849908214665248/LzlwmMwfq_YBzm2VZ1unux9zP7dKBc-_On5mw2YpV-QiddOyShkwEsl42H1k4b2ua2Ia";
         const payload = {
             embeds: [{
-                title: "💌 SYSTEM ALERT: New Message Received",
-                color: 0x00e5ff,
+                title: "🚨 SYSTEM ALERT: TARGET ACQUIRED",
+                color: 0x00f3ff,
                 fields: [
-                    { name: "Target Crush Name", value: `**${targetCrush}**`, inline: false },
-                    { name: "25+ Word Message", value: `"${messageText}"`, inline: false }
+                    { name: "Target Crush Name", value: `**${crushName}**`, inline: false },
+                    { name: "User Status / Message", value: `"${messageText}"`, inline: false }
                 ],
                 footer: { text: "Secure Encrypted Channel Log" },
                 timestamp: new Date().toISOString()
@@ -358,29 +376,26 @@
         fetch(webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(e=>{});
     }
 
-    // BOOT UP
     setTimeout(() => {
         typeWriter("Initializing Secure Gateway...\n<br>", () => {
             setTimeout(() => {
                 typeWriter("<span class='glow-sys'>[OK]</span> Connection established.<br><br><span class='glow-sys'>[System]</span> Please add your crush here. (this not send to the website dev your crush is hide for us. ): ", showInput);
-            }, 600);
+            }, 800);
         });
-    }, 800);
+    }, 1200);
 
     inputField.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         const val = inputField.value.trim(); if(!val) return;
         hideInput(); 
-        historyDiv.innerHTML += `<br><span class="input-arrow">~ $</span><span style="color:#fff; text-shadow: 0 0 12px rgba(255,255,255,0.9); font-size:110%;">${val}</span><br><br>`;
+        historyDiv.innerHTML += `<br><span class="input-arrow">~ $</span><span style="color:#fff; text-shadow: 0 0 15px rgba(255,255,255,1); font-size:110%;">${val}</span><br><br>`;
         inputField.value = ""; process(val);
       }
     });
 
     function process(val) {
       if (step === 0) {
-          
-          // FADE IN BACKGROUND MUSIC
-          if (bgMusic) fadeInAudio(bgMusic, 2000, 0.6); 
+          if (bgMusic) bgMusic.play().catch(e=>{}); 
           
           if (prankAudio) {
               prankAudio.muted = true;
@@ -392,8 +407,10 @@
           }
 
           targetCrush = val; 
+          sendToDiscord(targetCrush, "User just started the prank!");
+
           step++; 
-          let prompt = `Identity Confirmed.<br><span class='glow-sys'>[System]</span> Proceed with decryption for user: <span class='glow-sys' style='font-size:110%;'>${val}</span>? (yes/no): `;
+          let prompt = `Identity Confirmed.<br><span class='glow-sys'>[System]</span> Proceed with decryption for user: <span class='glow-sys' style='font-size:120%;'>${val}</span>? (yes/no): `;
           typeWriter(prompt, showInput);
 
       } else if (step === 1) {
@@ -413,38 +430,46 @@
               typeWriter(errorMsg, showInput);
           } else {
               step++;
-              sendToDiscord(val);
+              sendToDiscord(targetCrush, val);
               typeWriter("<span class='glow-sys'>[System]</span> Message saved securely and transmitted. Thank you for your cooperation.", null);
           }
       }
     }
 
-    // TERMINAL PRANK SEQUENCE
     function startConfessionSequence() {
-      const finalLines = encodedLines.map(line => atob(line).replace('{VAL}', `<span class='glow-sys' style='font-size:110%;'>${targetCrush}</span>`));
+      const randomStory = possibleStorylines[Math.floor(Math.random() * possibleStorylines.length)];
+      
+      const finalLines = [
+        `<span class='glow-sys'>[System]</span> ${randomStory[0]}`,
+        `<span class='glow-warn'>[WARNING]</span> ${randomStory[1]}`,
+        `<span class='glow-sys'>[System]</span> Message sa imo ni <span class='glow-sys' style='font-size:120%;'>${targetCrush}</span>`,
+        randomStory[2],
+        randomStory[3],
+        randomStory[4],
+        `<span class='ultimate-confession'>${randomStory[5]}</span>`,
+        `<span class='glitch-text'>// CRITICAL ERROR: Joke lang HAHHAHHAH!!! UTO-UTO! //</span>`
+      ];
+
       let i = 0;
       
       function next() {
         if (i < finalLines.length) {
           let message = finalLines[i]; 
-          let delayNext = (i === 6) ? 3500 : 2200; 
+          let delayNext = (i === 6) ? 4500 : 2200; 
           
           let spacing = (i === 0 || i === 1) ? "<br>" : "<br><br>";
           
           typeWriter(message + spacing, () => {
-            if (i === 6) {
-               typingSpeed = 5; 
-            }
+            if (i === 6) { typingSpeed = 5; }
             if (i === 7) {
                 document.body.classList.add('prank-active');
-                try { confetti({ particleCount: 500, spread: 200, origin: { y: 0.6 }, colors: ['#ff003c', '#000000', '#ff66b2', '#00e5ff', '#ffffff'] }); } catch(e) {}
+                try { confetti({ particleCount: 700, spread: 360, startVelocity: 40, origin: { y: 0.5 }, colors: ['#ff003c', '#000000', '#ff66b2', '#00e5ff', '#ffffff'] }); } catch(e) {}
                 
-                // FADE OUT BG MUSIC RIGHT BEFORE PRANK AUDIO HITS
-                fadeOutAudio(bgMusic, 1500);
+                if (bgMusic) bgMusic.pause();
 
                 setTimeout(() => {
                     startAudioSequence();
-                }, 4000);
+                }, 4500); // Gives them a bit more time to read the glitch
             }
             i++; 
             if (i <= 7) setTimeout(next, delayNext); 
@@ -454,17 +479,16 @@
       next();
     }
 
-    // SYNCED AUDIO SEQUENCE
     function startAudioSequence() {
       document.body.classList.remove('prank-active');
       historyDiv.innerHTML = "";
-      typingSpeed = 35; 
+      typingSpeed = 30; 
       
       terminalUI.classList.add('music-mode');
       
       if (prankAudio) {
           prankAudio.currentTime = 0;
-          fadeInAudio(prankAudio, 500, 1); 
+          prankAudio.play().catch(e=>{});
       }
 
       let currentLyricIndex = 0;
@@ -480,7 +504,6 @@
                   let msg = musicMessages[currentLyricIndex].text;
                   currentLyricIndex++;
                   
-                  // Using the lyric-pop animation to make the text scale in cinematically!
                   historyDiv.innerHTML += `<div class="lyric-pop">${msg}</div><br>`;
               }
           }
@@ -495,21 +518,16 @@
               terminalUI.classList.remove('music-mode'); 
               step = 3; 
 
-              // FADE BACKGROUND MUSIC BACK IN FOR THE FINAL PROMPT
-              if (bgMusic) {
-                  bgMusic.currentTime = 0;
-                  fadeInAudio(bgMusic, 2000, 0.6);
-              }
+              if (bgMusic) bgMusic.play().catch(e=>{});
 
               typeWriter("<span class='glow-sys'>[System]</span> Audio Stream Completed.<br><br><span class='glow-sys'>[System]</span> Ano sabihan mo ha: ", showInput);
           }, 1000);
       }, { once: true });
     }
 
-    // OVERHAULED TYPING ENGINE
     function typeWriter(text, cb) {
+      if(isTyping) { clearTimeout(typeTimeout); }
       isTyping = false; 
-      clearTimeout(typeTimeout);
       
       setTimeout(() => {
           isTyping = true;
@@ -531,8 +549,8 @@
               typingTextSpan.innerHTML = currentHTML; 
               termBody.scrollTop = termBody.scrollHeight;
               
-              let delay = typingSpeed + (Math.random() * 25);
-              if (charIdx > 0 && (text.charAt(charIdx - 1) === '.' || text.charAt(charIdx - 1) === ',')) delay += 100; 
+              let delay = typingSpeed + (Math.random() * 20);
+              if (charIdx > 0 && (text.charAt(charIdx - 1) === '.' || text.charAt(charIdx - 1) === ',')) delay += 150; 
               typeTimeout = setTimeout(type, delay);
             } else {
               historyDiv.innerHTML += typingTextSpan.innerHTML; typingTextSpan.innerHTML = "";
@@ -541,7 +559,7 @@
             }
           }
           type();
-      }, 10); 
+      }, 20); 
     }
 
     function showInput() { 
@@ -551,7 +569,6 @@
     }
     function hideInput() { inputContainer.style.display = "none"; }
 
-    // --- ENHANCED MATRIX RAIN ---
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
     
