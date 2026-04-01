@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SECURE_ENCRYPTED_CHANNEL</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color-1: #020203;
+      --bg-color-2: #080512; 
+      --term-bg: rgba(8, 8, 14, 0.85); 
+      --text-color: #e0e0e0; 
+      --neon-cyan: #00e5ff;
+      --neon-pink: #ff66b2;
+      --neon-green: #00ff66;
+      --alert-red: #ff003c;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--bg-color-2) 0%, var(--bg-color-1) 100%);
+      color: var(--text-color); 
+      font-family: 'JetBrains Mono', monospace;
+      margin: 0; display: flex; justify-content: center; align-items: center;
+      height: 100dvh; overflow: hidden; 
+      perspective: 1000px;
+      background-color: black;
+    }
+
+    /* --- NEW: CINEMATIC EFFECTS --- */
+    .vignette {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
+        z-index: 5; pointer-events: none;
+    }
+    
+    .crt-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+        background-size: 100% 3px, 3px 100%;
+        z-index: 998; pointer-events: none; opacity: 0.6;
+        animation: flicker 0.15s infinite;
+    }
+    @keyframes flicker {
+        0% { opacity: 0.55; } 50% { opacity: 0.65; } 100% { opacity: 0.55; }
+    }
+
+    #matrix-canvas {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: 0; pointer-events: none; opacity: 0.2;
+    }
+
+    .cyber-grid {
+        position: fixed; bottom: -20vh; left: -50vw; width: 200vw; height: 60vh;
+        background: linear-gradient(rgba(0, 229, 255, 0.15) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 229, 255, 0.15) 1px, transparent 1px);
+        background-size: 40px 40px; transform: rotateX(75deg);
+        animation: gridMove 10s linear infinite; z-index: 1; pointer-events: none;
+    }
+    body.prank-active .cyber-grid {
+        background: linear-gradient(rgba(255, 0, 60, 0.25) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 0, 60, 0.25) 1px, transparent 1px);
+        animation: gridMove 2s linear infinite;
+    }
+    @keyframes gridMove { 0% { transform: rotateX(75deg) translateY(0); } 100% { transform: rotateX(75deg) translateY(40px); } }
+
+    /* Enhanced Terminal UI */
+    .terminal-container { 
+        position: relative; z-index: 10; 
+        animation: entrance 2s cubic-bezier(0.16, 1, 0.3, 1) forwards, float 6s ease-in-out infinite, pulseGlow 4s ease-in-out infinite alternate; 
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); }
+    }
+    @keyframes pulseGlow {
+        0% { filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.1)); }
+        100% { filter: drop-shadow(0 0 25px rgba(0, 229, 255, 0.3)); }
+    }
+
+    /* MUSIC DRIFT ANIMATION FOR THE TERMINAL */
+    .terminal-container.music-mode {
+        animation: musicDrift 12s ease-in-out infinite alternate !important;
+    }
+    @keyframes musicDrift {
+        0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+        25% { transform: translate(-15px, -10px) scale(1.02) rotate(-1deg); }
+        50% { transform: translate(15px, 15px) scale(0.98) rotate(1deg); }
+        75% { transform: translate(-10px, 20px) scale(1.03) rotate(-0.5deg); }
+        100% { transform: translate(20px, -15px) scale(1) rotate(0.5deg); }
+    }
+
+    .terminal-wrapper {
+      width: 92vw; max-width: 750px; height: 82dvh;
+      background: var(--term-bg); border-radius: 16px;
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9), inset 0 0 40px rgba(0, 229, 255, 0.15);
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+      transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+
+    .terminal-wrapper::after {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+        background: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan);
+        animation: scanlineSweep 4s linear infinite; opacity: 0.6; pointer-events: none;
+    }
+    @keyframes scanlineSweep { 0% { top: -10%; } 100% { top: 110%; } }
+
+    /* Violent Transition to red state for April fools */
+    body.prank-active .terminal-wrapper {
+        border: 2px solid var(--alert-red);
+        background: rgba(25, 0, 0, 0.9);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.95), inset 0 0 100px rgba(255, 0, 60, 0.5);
+        animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) infinite;
+    }
+    body.prank-active .terminal-container { animation: none; filter: drop-shadow(0 0 30px rgba(255, 0, 60, 0.6)); }
+    body.prank-active .terminal-wrapper::after { background: var(--alert-red); box-shadow: 0 0 40px var(--alert-red); animation: scanlineSweep 1s linear infinite; }
+
+    @keyframes shake {
+      0% { transform: translate(2px, 2px) rotate(0deg); }
+      20% { transform: translate(-4px, -3px) rotate(-1.5deg); }
+      40% { transform: translate(-3px, 4px) rotate(1.5deg); }
+      60% { transform: translate(4px, -3px) rotate(0deg); }
+      80% { transform: translate(-3px, -4px) rotate(-1.5deg); }
+      100% { transform: translate(2px, 2px) rotate(0deg); }
+    }
+
+    @keyframes entrance { 
+        0% { transform: scale(0.9) translateY(30px); opacity: 0; filter: contrast(1.5); } 
+        100% { transform: scale(1) translateY(0); opacity: 1; filter: contrast(1); } 
+    }
+
+    .window-header {
+      background: rgba(0,0,0,0.8); padding: 14px 25px; border-radius: 16px 16px 0 0; 
+      display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .window-btn { width: 14px; height: 14px; border-radius: 50%; margin-right: 9px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 0 5px rgba(0,0,0,0.5);}
+
+    .terminal-body { 
+        padding: 30px; flex-grow: 1; overflow-y: auto; font-size: 17px; 
+        line-height: 1.7; text-shadow: 0 0 5px rgba(0, 0, 0, 0.9); letter-spacing: 0.5px;
+    }
+    .terminal-body::-webkit-scrollbar { display: none; }
+    
+    /* TEXT GLOW CLASSES */
+    .glow-sys { color: var(--neon-cyan); font-weight: 700; text-shadow: 0 0 12px var(--neon-cyan); }
+    .glow-warn { color: var(--alert-red); font-weight: 700; text-shadow: 0 0 15px var(--alert-red); }
+    .red-text { color: var(--alert-red); font-weight: 700; text-shadow: 0 0 12px var(--alert-red); }
+    
+    /* GLITCH TEXT EFFECT FOR PRANK */
+    .glitch-text {
+        font-family: 'Share Tech Mono', monospace; font-size: 28px; font-weight: bold;
+        color: var(--alert-red); text-shadow: 3px 0 var(--neon-cyan), -3px 0 var(--neon-pink);
+        animation: glitch-anim 0.1s infinite; display: inline-block; margin-top: 10px;
+    }
+    @keyframes glitch-anim {
+        0% { transform: translate(0) }
+        20% { transform: translate(-5px, 5px) }
+        40% { transform: translate(-5px, -5px) }
+        60% { transform: translate(5px, 5px) }
+        80% { transform: translate(5px, -5px) }
+        100% { transform: translate(0) }
+    }
+
+    #cursor {
+        display: inline-block; width: 12px; height: 1.2rem; background: var(--neon-cyan); 
+        animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 4px;
+        box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    body.prank-active #cursor { background: var(--alert-red); box-shadow: 0 0 20px var(--alert-red); animation: blink 0.15s step-end infinite;}
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .input-row { display: flex; align-items: center; margin-top: 20px; display: none; }
+    .input-arrow { color: var(--neon-cyan); font-weight: bold; margin-right: 12px; font-size: 18px;}
+    body.prank-active .input-arrow { color: var(--alert-red); }
+    
+    input { 
+        background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 8px;
+        color: var(--neon-cyan); padding: 12px 18px;
+        font-family: 'JetBrains Mono', monospace; font-size: 16px; outline: none; 
+        flex-grow: 1; font-weight: 700; transition: all 0.3s ease;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+    input:focus { 
+        border-color: var(--neon-cyan); 
+        background: rgba(0, 229, 255, 0.05);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 10px rgba(0,0,0,0.5); 
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="vignette"></div>
+  <div class="crt-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="cyber-grid"></div>
+
+  <audio id="prank-audio" src="prank.mp3" preload="auto"></audio>
+  <audio id="bg-music" preload="auto" loop><source src="your-song.mp3" type="audio/mpeg"></audio>
+
+  <div class="terminal-container" id="terminal-ui">
+      <div class="terminal-wrapper" id="term-wrap">
+        <div class="window-header">
+          <div class="window-btn" style="background:#ff5f56;"></div>
+          <div class="window-btn" style="background:#ffbd2e;"></div>
+          <div class="window-btn" style="background:#27c93f;"></div>
+          <div style="flex-grow:1; text-align:right; font-size:12px; font-weight:bold; letter-spacing:2px; color:var(--neon-cyan); opacity:0.8; text-shadow: 0 0 5px var(--neon-cyan);">SYS_ADMIN_ACCESS</div>
+        </div>
+        <div class="terminal-body" id="term-body">
+          <span id="console-history"></span><span id="active-line"><span id="typing-text"></span><span id="cursor"></span></span>
+          <div class="input-row" id="input-container">
+            <span class="input-arrow">~ $</span>
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="Awaiting input...">
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <script>
+    const historyDiv = document.getElementById('console-history');
+    const typingTextSpan = document.getElementById('typing-text');
+    const inputContainer = document.getElementById('input-container');
+    const inputField = document.getElementById('user-input');
+    const termBody = document.getElementById('term-body');
+    const prankAudio = document.getElementById('prank-audio');
+    const bgMusic = document.getElementById('bg-music');
+    const terminalUI = document.getElementById('terminal-ui');
+
+    let step = 0; 
+    let typingSpeed = 35; 
+    let isTyping = false; 
+    let typeTimeout; 
+    let targetCrush = ""; // Global variable to store the crush name for Discord
+
+    // --- 1: THE TERMINAL PRANK SEQUENCE (UPDATED SPACING & REMOVED DECODING LINE) ---
+    const encodedLines = [
+      "PHNwYW4gY2xhc3M9J2dsb3ctc3lzJz5bU3lzdGVtXTwvc3Bhbj4gU2Nhbm5pbmcgaW50ZXJuYWwgbWVtb3J5IGJhbmtzLi4u", // 0: [System] Scanning internal memory banks...
+      "PHNwYW4gY2xhc3M9J2dsb3ctd2Fybic+W1dBUk5JTkddPC9zcGFuPiBVbmF1dGhvcml6ZWQgZmVlbGluZ3MgZGV0ZWN0ZWQgaW4gc2VjdG9yIDQu", // 1: [WARNING] Unauthorized feelings detected in sector 4.
+      "PHNwYW4gY2xhc3M9J2dsb3ctc3lzJz5bU3lzdGVtXTwvc3Bhbj4gTWVzc2FnZSBzYSBpbW8gbmkge1ZBTH0=", // 2: [System] Message sa imo ni {VAL}
+      "QWN0dWFsbHksIG1hdGFnYWwga28gbmEgZ3VzdG9uZyBhbWluaW4gJ3RvIHNhJ3lvLiBJIGp1c3QgZGlkbid0IGtub3cgaG93Lg==", // 3: Actually, matagal ko na gustong aminin 'to sa'yo.
+      "RXZlcnkgdGltZSB3ZSB0YWxrLCBJIHNtaWxlLiBJYmFuZy1pYmEga2Ega2FzaSBzYSBsYWhhdC4gWW91IG1ha2UgbWUgcmVhbGx5IGhhcHB5Lg==", // 4: Every time we talk...
+      "U28sIGJlZm9yZSBJIGxvc2UgbXkgbmVydmUuLi4gSSB3YW50IHlvdSB0byBrbm93Lg==", // 5: So, before I lose my nerve...
+      "R3VzdG8ga2l0YS4gSSByZWFsbHksIHJlYWxseSBsaWtlIHlvdS4gPHNwYW4gY2xhc3M9J2hlYXJ0LWdsb3cnPiZoZWFydHM7PC9zcGFuPg==", // 6: Gusto kita...
+      "PHNwYW4gY2xhc3M9J2dsaXRjaC10ZXh0Jz4vLyBDUklUSUNBTCBFUlJPUjogQVBSSUwgRk9PTCdTIEhBSEFIQUhBISEhIFVUTy1VVE8hIC8vPC9zcGFuPg==" // 7: // CRITICAL ERROR: APRIL FOOL'S //
+    ];
+
+    // --- 2: AUDIO LYRICS SEQUENCE ---
+    const musicMessages = [
+        { text: atob("T2theSBsYW5nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bWFpd2FuPC9zcGFuPi4="), time: 0.5 }, 
+        { text: atob("T2theSBsYW5nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bWFzYWt0YW48L3NwYW4+Lg=="), time: 3.0 }, 
+        { text: atob("T2theSBsYW5nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bWFiaWdvPC9zcGFuPi4uLiBkYWhpbCBpa2F3IGF5IG5hZ21hbWFoYWwu"), time: 6.0 }, 
+        { text: atob("PHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5BbWVuPC9zcGFuPi4="), time: 10.5 }, 
+        { text: atob("S3VuZyBheWF3IG1vbmcgbWFzYWt0YW4sICd3YWcga2FuZyA8c3BhbiBjbGFzcz0ncmVkLXRleHQnPm1hZ21hbWFoYWw8L3NwYW4+Lg=="), time: 13.0 }, 
+        { text: atob("SWYgeW91IGRvbid0IHdhbnQgdG8gYmUgPHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5icm9rZW48L3NwYW4+LCBkb24ndCBsb3ZlIGF0IGFsbC4="), time: 17.5 } 
+    ];
+
+    // DISCORD WEBHOOK FUNCTION
+    function sendToDiscord(messageText) {
+        const webhookUrl = "https://discord.com/api/webhooks/1488849908214665248/LzlwmMwfq_YBzm2VZ1unux9zP7dKBc-_On5mw2YpV-QiddOyShkwEsl42H1k4b2ua2Ia";
+        const payload = {
+            embeds: [{
+                title: "💌 SYSTEM ALERT: New Message Received",
+                color: 0x00e5ff,
+                fields: [
+                    { name: "Target Crush Name", value: `**${targetCrush}**`, inline: false },
+                    { name: "25+ Word Message", value: `"${messageText}"`, inline: false }
+                ],
+                footer: { text: "Secure Encrypted Channel Log" },
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }).catch(err => console.error("Webhook failed:", err));
+    }
+
+    // BOOT UP
+    setTimeout(() => {
+        typeWriter("Initializing Secure Gateway...\n<br>", () => {
+            setTimeout(() => {
+                typeWriter("[OK] Connection established.<br><br><span class='glow-sys'>[System]</span> Please add your crush here. (this not send to the website dev your crush is hide for us. ): ", showInput);
+            }, 600);
+        });
+    }, 800);
+
+    inputField.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const val = inputField.value.trim(); if(!val) return;
+        hideInput(); 
+        historyDiv.innerHTML += `<br><span class="input-arrow">~ $</span><span style="color:#fff;">${val}</span><br><br>`;
+        inputField.value = ""; process(val);
+      }
+    });
+
+    function process(val) {
+      if (step === 0) {
+          if (bgMusic && bgMusic.paused) bgMusic.play().catch(e=>{});
+          
+          if (prankAudio) {
+              prankAudio.muted = true;
+              prankAudio.play().then(() => {
+                  prankAudio.pause();
+                  prankAudio.currentTime = 0;
+                  prankAudio.muted = false; 
+              }).catch(e => console.log("Unlock failed:", e));
+          }
+
+          targetCrush = val; // Store crush name globally
+          step++; 
+          let prompt = `Identity Confirmed.<br><span class='glow-sys'>[System]</span> Proceed with decryption for user: <span class='glow-sys'>${val}</span>? (yes/no): `;
+          typeWriter(prompt, showInput);
+
+      } else if (step === 1) {
+          if (val.toLowerCase() === 'y' || val.toLowerCase() === 'yes') {
+            step++; 
+            historyDiv.innerHTML = ""; 
+            startConfessionSequence();
+          } else {
+            typeWriter("<span class='glow-sys'>[System]</span> Decryption aborted. Connection closed.", null);
+          }
+
+      } else if (step === 3) {
+          // --- POST-AUDIO 25 WORD VALIDATION ---
+          let wordCount = val.split(/\s+/).filter(word => word.length > 0).length;
+          
+          if (wordCount < 25) {
+              let errorMsg = `<span class='glow-warn'>[WARNING]</span> Error: Effort too low! You only typed ${wordCount} words out of 25.<br><br><span class='glow-sys'>[System]</span> Subukan mo ulit. Ano sabihan mo ha: `;
+              typeWriter(errorMsg, showInput);
+          } else {
+              step++;
+              
+              // TRIGGER DISCORD WEBHOOK HERE
+              sendToDiscord(val);
+
+              typeWriter("<span class='glow-sys'>[System]</span> Message saved securely and transmitted. Thank you for your cooperation.", null);
+          }
+      }
+    }
+
+    // THE TERMINAL PRANK SEQUENCE
+    function startConfessionSequence() {
+      const finalLines = encodedLines.map(line => atob(line).replace('{VAL}', `<span class='glow-sys'>${targetCrush}</span>`));
+      let i = 0;
+      
+      function next() {
+        if (i < finalLines.length) {
+          let message = finalLines[i]; 
+          let delayNext = (i === 6) ? 3500 : 2200; 
+          
+          // EXACT SPACING LOGIC
+          // Line 0 (Scanning) -> 1 break
+          // Line 1 (Warning) -> 2 breaks
+          // All others -> 2 breaks
+          let spacing = (i === 0) ? "<br>" : "<br><br>";
+          
+          typeWriter(message + spacing, () => {
+            if (i === 6) {
+               typingSpeed = 5; 
+            }
+            if (i === 7) {
+                document.body.classList.add('prank-active');
+                try { confetti({ particleCount: 300, spread: 150, origin: { y: 0.6 }, colors: ['#ff003c', '#000000', '#ff66b2'] }); } catch(e) {}
+                
+                setTimeout(() => {
+                    startAudioSequence();
+                }, 4000);
+            }
+            i++; 
+            if (i <= 7) setTimeout(next, delayNext); 
+          });
+        }
+      }
+      next();
+    }
+
+    // THE SYNCED AUDIO SEQUENCE
+    function startAudioSequence() {
+      document.body.classList.remove('prank-active');
+      historyDiv.innerHTML = "";
+      typingSpeed = 35; 
+      
+      terminalUI.classList.add('music-mode');
+      
+      if (bgMusic) bgMusic.pause();
+      if (prankAudio) {
+          prankAudio.currentTime = 0;
+          prankAudio.play().catch(e => console.log("Audio play blocked by browser:", e));
+      }
+
+      let currentLyricIndex = 0;
+
+      function syncLyrics() {
+          if (currentLyricIndex < musicMessages.length) {
+              if (prankAudio.currentTime >= musicMessages[currentLyricIndex].time) {
+                  isTyping = false; 
+                  clearTimeout(typeTimeout);
+                  historyDiv.innerHTML = ""; 
+                  typingTextSpan.innerHTML = "";
+                  
+                  let msg = musicMessages[currentLyricIndex].text;
+                  currentLyricIndex++;
+                  typeWriter(`<div style="text-align: center; font-size: 24px;">${msg}</div><br>`);
+              }
+          }
+      }
+
+      prankAudio.addEventListener('timeupdate', syncLyrics);
+
+      prankAudio.addEventListener('ended', () => {
+          prankAudio.removeEventListener('timeupdate', syncLyrics);
+          setTimeout(() => {
+              historyDiv.innerHTML = "";
+              terminalUI.classList.remove('music-mode'); 
+              step = 3; 
+              typeWriter("<span class='glow-sys'>[System]</span> Audio Stream Completed.<br><br><span class='glow-sys'>[System]</span> Ano sabihan mo ha: ", showInput);
+          }, 1000);
+      }, { once: true });
+    }
+
+    // OVERHAULED TYPING ENGINE
+    function typeWriter(text, cb) {
+      isTyping = false; 
+      clearTimeout(typeTimeout);
+      
+      setTimeout(() => {
+          isTyping = true;
+          let charIdx = 0; let currentHTML = "";
+          
+          function type() {
+            if (!isTyping) return; 
+            if (charIdx < text.length) {
+              if (text.slice(charIdx).startsWith("<")) {
+                let endIdx = text.indexOf(">", charIdx) + 1;
+                if (endIdx > charIdx) {
+                    currentHTML += text.slice(charIdx, endIdx); charIdx = endIdx;
+                    typingTextSpan.innerHTML = currentHTML; 
+                    setTimeout(() => { termBody.scrollTop = termBody.scrollHeight; type(); }, 0); 
+                    return;
+                }
+              }
+              currentHTML += text.charAt(charIdx); charIdx++;
+              typingTextSpan.innerHTML = currentHTML; 
+              termBody.scrollTop = termBody.scrollHeight;
+              
+              let delay = typingSpeed + (Math.random() * 25);
+              if (charIdx > 0 && (text.charAt(charIdx - 1) === '.' || text.charAt(charIdx - 1) === ',')) delay += 100; 
+              typeTimeout = setTimeout(type, delay);
+            } else {
+              historyDiv.innerHTML += typingTextSpan.innerHTML; typingTextSpan.innerHTML = "";
+              isTyping = false; 
+              if (cb) cb();
+            }
+          }
+          type();
+      }, 10); 
+    }
+
+    function showInput() { 
+        inputContainer.style.display = "flex"; 
+        inputField.focus(); 
+        setTimeout(() => termBody.scrollTop = termBody.scrollHeight, 100);
+    }
+    function hideInput() { inputContainer.style.display = "none"; }
+
+    // --- ENHANCED MATRIX RAIN ---
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for(let x = 0; x < columns; x++) drops[x] = Math.random() * -100;
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const isPrank = document.body.classList.contains('prank-active');
+      ctx.fillStyle = isPrank ? "#ff003c" : "#00e5ff";
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = isPrank ? "#ff003c" : "#00e5ff";
+      ctx.font = "bold " + fontSize + "px 'JetBrains Mono'";
+
+      for(let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if(drops[i] * fontSize > canvas.height && Math.random() > 0.97) drops[i] = 0;
+        drops[i]++;
+      }
+      requestAnimationFrame(drawMatrix);
+    }
+    drawMatrix();
+
+    document.body.addEventListener('click', (e) => { 
+        if(e.target.tagName !== "INPUT" && inputContainer.style.display === "flex") inputField.focus(); 
+    });
+  </script>
+</body>
+</html>
